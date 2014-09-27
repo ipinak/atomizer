@@ -34,6 +34,8 @@
 
 -export([fetch/1, fetch/2]).
 
+-define(content_type, "content-type").
+
 init() ->
     inets:start().
 
@@ -56,20 +58,20 @@ extract_content_type(Headers) ->
 		[H|_] -> H;
 		true  -> "none"
 	end.
-extract_content_type([H|T], Accum) ->
-	{Name, Value} = H,
-	if Name == "content-type" ->
-			BreakPos = string:rstr(Value, ";") - 1,
-			if BreakPos > 0 ->
-					extract_content_type(T, [string:sub_string(Value, 1, BreakPos)|Accum]);
-			   true ->
-					extract_content_type(T, [Value|Accum])
-			end;
-	   true ->
-			extract_content_type(T, Accum)
-	end;
-extract_content_type([], Accum) ->
-	Accum.
-	
 
-						
+extract_content_type([{?content_type, Value} | T], Accum) ->
+    %% We found some element that has content-type, so it's
+    %% parsing timeee...
+    case string:rstr(Value, ";") - 1 of 
+        BreakPos when BreakPos > 0 ->
+            extract_content_type(T, [string:sub_string(
+                                       Value, 1, BreakPos) | Accum]);
+        _ ->
+            extract_content_type(T, [Value|Accum])
+    end;
+extract_content_type([_ | T], Accum) ->
+    %% Moving to the next element
+    extract_content_type(T, Accum);
+extract_content_type([], Accum) ->
+    Accum.
+
