@@ -34,24 +34,27 @@
 
 -export([fetch/1, fetch/2]).
 
-fetch(Url) when is_list(Url) ->
+init() ->
+    inets:start().
+
+fetch([_|_]=Url) ->
+    init(),
 	fetch(Url, []).
 
-fetch(Url, Headers) when is_list(Url) and is_list(Headers) ->
-	case http:request(get, {Url, Headers}, [], []) of
-		{ok, Result} -> 
-			{Status, RespHeaders, Body} = Result,
-			{ok, extract_content_type(RespHeaders), Status, RespHeaders, Body};
+fetch(Url, Headers) when is_list(Url) andalso is_list(Headers) ->
+    init(),
+	case httpc:request(get, {Url, Headers}, [], []) of
+		{ok, {Status, RespHeaders, Body}} -> 
+			{ok, extract_content_type(RespHeaders), 
+             Status, RespHeaders, Body};
 		{error, Reason} -> 
 			{error, Reason}
 	end.
 
 extract_content_type(Headers) ->
 	case extract_content_type(Headers, []) of
-		[H|_T] ->
-			H;
-		true  ->
-			"none"
+		[H|_] -> H;
+		true  -> "none"
 	end.
 extract_content_type([H|T], Accum) ->
 	{Name, Value} = H,

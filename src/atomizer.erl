@@ -37,6 +37,7 @@
 -include_lib("xmerl/include/xmerl.hrl").
 -include("atomizer.hrl").
 
+
 parse_url(Url) ->
 	case fetcher:fetch(Url) of
 		{error, Reason} ->
@@ -49,40 +50,24 @@ parse_file(FilePath) ->
 	{ok, Raw} = file:read_file(FilePath),
 	Feed = binary_to_list(Raw),
 	parse(examine_content(Feed), Feed).
-					
+
 examine_content(Feed) ->
-	case regexp:match(Feed, "<feed") of
-		{match, _, _} ->
-			atom;
+	case re:match(Feed, "<feed") of
+		{match, _, _} -> atom;
 		nomatch ->
-			case regexp:match(Feed, "<channel") of
-				{match, _, _} ->
-					rss;
-				nomatch ->
-					unknown
+			case re:match(Feed, "<channel") of
+				{match, _, _} -> rss;
+				nomatch -> unknown
 			end
 	end.
 	
-examine_content_type(ContentType) ->
-	case ContentType of
-		"text/xml" ->
-			rss;
-		"application/rss+xml" ->
-			rss;
-		"application/atom+xml" ->
-			atom;
-		"application/xml" ->
-			atom;
-		true ->
-			unknown
-	end.
+examine_content_type("text/xml")             -> rss;
+examine_content_type("application/rss+xml")  -> rss;
+examine_content_type("application/atom+xml") -> atom;
+examine_content_type("application/xml")      -> atom;
+examine_content_type(_)                      -> unknown.
 
-parse(unknown, _Feed) ->
-	uknown;
-
-parse(rss, Feed) ->
-	void;
-
-parse(atom, Feed) ->
-	atom_parser:parse_feed(Feed).
+parse(unknown, _Feed) -> uknown;
+parse(rss, _Feed)     -> void;
+parse(atom, Feed)     -> atom_parser:parse_feed(Feed).
 	
