@@ -1,0 +1,14 @@
+{application, atomizer,
+ [
+  {description, "An Erlang atomizer library"},
+  {vsn, "1"},
+  {modules, [
+             atomizer
+            ]},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
