@@ -67,7 +67,7 @@ examine_content_type("application/atom+xml") -> atom;
 examine_content_type("application/xml")      -> atom;
 examine_content_type(_)                      -> unknown.
 
-parse(unknown, _Feed) -> uknown;
-parse(rss, _Feed)     -> void;
+parse(unknown, _Feed) -> unknown;
+parse(rss, Feed)      -> rss_parser:parse_feed(Feed);
 parse(atom, Feed)     -> atom_parser:parse_feed(Feed).
 	
