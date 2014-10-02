@@ -15,8 +15,13 @@ atomizer fetches and parses RSS feeds.
 
 # Test
 
-For the moment there are no automated tests available. You can
-manually test it by following the steps:
+## Automated testing
+
+    $ rebar eunit
+
+## Manual testing
+
+You can manually test it by following the steps:
 
     $ rebar shell
     ==> atomizer (shell)
